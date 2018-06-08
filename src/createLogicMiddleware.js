@@ -194,16 +194,15 @@ export default function createLogicMiddleware(arrLogic = [], deps = {}) {
     mw.monitor$ = monitor$;
 
     /**
-       Resolve promise when all in-flight actions are complete passing
-       through fn if provided
-       @param {function} fn optional fn() which is invoked on completion
-       @return {promise} promise resolves when all are complete
-      */
+     * 一个自定义钩子函数, 主要用于测试
+     * @param  {Function} fn   可写入相关测试逻辑
+     * @return {Objetc}
+     */
     mw.whenComplete = function whenComplete(fn = identity) {
         return lastPending$
-            // .do(x => console.log('wc', x)) /* keep commented out */
+            //  只有当x.pending > 0是才继续往下走
             .takeWhile(x => x.pending)
-            .map(( /* x */ ) => undefined) // not passing along anything
+            .map(( /* x */ ) => undefined)
             .toPromise()
             .then(fn);
     };
@@ -361,13 +360,6 @@ function applyLogic(arrLogic, store, next, sub, actionIn$, deps, startLogicCount
 }
 
 /**
- * Implement default names for logic using type and idx
- * @param {object} logic named or unnamed logic object
- * @param {number} idx  index in the logic array
- * @return {object} namedLogic named logic
- */
-
-/**
  * 判断当前传入的Logic有没有name, 有就不做任何操作直接返回, 没有就给当前Logic添加一个name属性后返回
  * @param  {Object} logic 当前Logic
  * @param  {Number} idx   当前Logic在arrLogic中的下标地址
@@ -381,11 +373,6 @@ function naming(logic, idx) {
     };
 }
 
-/**
-  Find duplicates in arrLogic by checking if ref to same logic object
-  @param {array} arrLogic array of logic to check
-  @return {array} array of indexes to duplicates, empty array if none
- */
 /**
  * @param  {Array.<Logic>}  arrLogic Logic数组
  * @return {Array.<Number>}          重复的Logic下标
